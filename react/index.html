@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <script>
+    var lastTime = performance.now();
+    var frame = 0;
+    var lastFameTime = performance.now();
+
+    var loop = function (time) {
+      var now = performance.now();
+      var fs = (now - lastFameTime);
+      lastFameTime = now;
+      var fps = Math.round(1000 / fs);
+      console.log('实时', fps);
+
+      frame++;
+      if (now > 1000 + lastTime) {
+        var fps = Math.round((frame * 1000) / (now - lastTime));
+        console.log(fps);
+
+        frame = 0;
+        lastTime = now;
+      };
+      requestAnimationFrame(loop)
+    }
+    loop();
+  </script>
+  <script>
+    setTimeout(function longTask() {
+      const long = Math.random() > 0.5;
+      console.log(long);
+
+      let i = 0
+      if (long) {
+        while (i < 1000000000) {
+          i++
+        }
+      }
+      setTimeout(longTask, 1000);
+    }, 1000);
+  </script>
+</body>
+
+</html>
