@@ -273,3 +273,38 @@ export function createFunctionComponent(element) {
   return dom;
 }
 ```
+
+## 设置属性
+
+### react/ReactMount.js
+
+```js
+export function createNativeDOM(element) {
+  const { type, props } = element;
+  const dom = document.createElement(type);
+  if (props.children) {
+    createChildrenDOM(props.children, dom);
+  }
+
+  setProps(props, dom);
+
+  return dom;
+}
+
+export function setProps(props, dom) {
+  for (const key in props) {
+    if (props.hasOwnProperty(key) && key !== 'children') {
+      if (key === 'style') {
+        setStyle(props.style, dom);
+      } else if (key === 'className') {
+        dom.className = props[key];
+      } else if (/^on/.test(key)) {
+        const eventName = key.toLowerCase().replace('on', '');
+        dom.addEventListener(eventName, props[key], false);
+      } else {
+        dom.setAttribute(key, props[key]);
+      }
+    }
+  }
+}
+```
