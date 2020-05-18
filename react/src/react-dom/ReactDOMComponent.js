@@ -2,17 +2,20 @@ import ReactDOMComponentTree from './ReactDOMComponentTree';
 import ReactDOMComponentFlags from './shared/ReactDOMComponentFlags';
 import DOMPropertyOperations from './DOMPropertyOperations';
 import DOMLazyTree from './utils/DOMLazyTree';
+import ReactMultiChild from '../reconciler/ReactMultiChild';
 
 const CONTENT_TYPES = { string: true, number: true };
+const getNode = ReactDOMComponentTree.getNodeFromInstance;
 
 let globalIdCounter = 1;
-export default class ReactDOMComponent {
+export default class ReactDOMComponent extends ReactMultiChild {
   static displayName = 'ReactDOMComponent';
 
   constructor(element) {
+    super();
     const { type: tag } = element;
     this._currentElement = element;
-    this._tag = tag.toLowerCase;
+    this._tag = tag.toLowerCase();
     this._renderedChildren = null;
     this._ostNode = null;
     this._hostParent = null;
@@ -92,8 +95,6 @@ export default class ReactDOMComponent {
     }
   }
 
-  mountChildren() {}
-
   _updateDOMProperties(lastProps, nextProps, transaction) {
     // let propKey;
     // let styleName;
@@ -142,5 +143,9 @@ export default class ReactDOMComponent {
     //     }
     //   }
     // }
+  }
+
+  getPublicInstance() {
+    return getNode(this);
   }
 }

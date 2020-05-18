@@ -9,13 +9,8 @@
  * @providesModule traverseAllChildren
  */
 
-var ReactCurrentOwner = require('ReactCurrentOwner');
-var REACT_ELEMENT_TYPE = require('ReactElementSymbol');
-
-var getIteratorFn = require('getIteratorFn');
-var invariant = require('invariant');
-var KeyEscapeUtils = require('KeyEscapeUtils');
-var warning = require('warning');
+import getIteratorFn from './getIteratorFn';
+import REACT_ELEMENT_TYPE from './ReactElementSymbol';
 
 var SEPARATOR = '.';
 var SUBSEPARATOR = ':';
@@ -45,7 +40,7 @@ function getComponentKey(component, index) {
   // that we don't block potential future ES APIs.
   if (component && typeof component === 'object' && component.key != null) {
     // Explicit key
-    return KeyEscapeUtils.escape(component.key);
+    return component.key;
   }
   // Implicit key determined by the index in the set
   return index.toString(36);
@@ -131,7 +126,7 @@ function traverseAllChildrenImpl(
             child = entry[1];
             nextName =
               nextNamePrefix +
-              KeyEscapeUtils.escape(entry[0]) +
+              entry[0] +
               SUBSEPARATOR +
               getComponentKey(child, 0);
             subtreeCount += traverseAllChildrenImpl(
@@ -143,17 +138,6 @@ function traverseAllChildrenImpl(
           }
         }
       }
-    } else if (type === 'object') {
-      var addendum = '';
-      var childrenString = String(children);
-      invariant(
-        false,
-        'Objects are not valid as a React child (found: %s).%s',
-        childrenString === '[object Object]'
-          ? 'object with keys {' + Object.keys(children).join(', ') + '}'
-          : childrenString,
-        addendum
-      );
     }
   }
 

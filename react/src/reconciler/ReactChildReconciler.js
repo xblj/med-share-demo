@@ -2,7 +2,6 @@ import traverseAllChildren from '../shared/traverseAllChildren';
 import instantiateReactComponent from './instantiateReactComponent';
 
 function instantiateChild(childInstances, child, name, selfDebugID) {
-  // We found a component instance.
   var keyUnique = childInstances[name] === undefined;
 
   if (child != null && keyUnique) {

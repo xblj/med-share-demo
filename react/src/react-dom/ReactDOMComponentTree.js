@@ -1,13 +1,10 @@
-import ReactDOMComponentFlags from './shared/ReactDOMComponentFlags';
 import DOMProperty from './DOMProperty';
+import ReactDOMComponentFlags from './shared/ReactDOMComponentFlags';
 
 var Flags = ReactDOMComponentFlags;
 
 var internalInstanceKey =
-  '__reactInternalInstance$' +
-  Math.random()
-    .toString(36)
-    .slice(2);
+  '__reactInternalInstance$' + Math.random().toString(36).slice(2);
 
 /**
  * Given a DOM node, return the ReactDOMComponent or ReactDOMTextComponent
@@ -137,6 +134,31 @@ function precacheNode(inst, node) {
   node[internalInstanceKey] = hostInst;
 }
 
+/**
+ * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
+ * DOM node.
+ */
+function getNodeFromInstance(inst) {
+  if (inst._hostNode) {
+    return inst._hostNode;
+  }
+
+  // Walk up the tree until we find an ancestor whose DOM node we have cached.
+  var parents = [];
+  while (!inst._hostNode) {
+    parents.push(inst);
+    inst = inst._hostParent;
+  }
+
+  // Now parents contains each ancestor that does *not* have a cached native
+  // node, and `inst` is the deepest ancestor that does.
+  for (; parents.length; inst = parents.pop()) {
+    precacheChildNodes(inst, inst._hostNode);
+  }
+
+  return inst._hostNode;
+}
+
 export default {
   getInstanceFromNode,
   getClosestInstanceFromNode,
@@ -144,4 +166,5 @@ export default {
   shouldPrecacheNode,
   getRenderedHostOrTextFromComponent,
   precacheNode,
+  getNodeFromInstance,
 };

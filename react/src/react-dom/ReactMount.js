@@ -5,40 +5,40 @@ import ReactReconciler from '../reconciler/ReactReconciler';
 import ReactDOMContainerInfo from '../react/ReactDOMContainerInfo';
 import DOMLazyTree from './utils/DOMLazyTree';
 
-const DOC_NODE_TYPE = 9;
+// const DOC_NODE_TYPE = 9;
 var instancesByReactRootID = {};
 
 /**
  * @param {DOMElement|DOMDocument} container 可能包含React组件的DOM元素
  * @return {?*} 有reactRoot ID的DOM元素或者null
  */
-function getReactRootElementInContainer(container) {
-  if (!container) {
-    return null;
-  }
+// function getReactRootElementInContainer(container) {
+//   if (!container) {
+//     return null;
+//   }
 
-  if (container.nodeType === DOC_NODE_TYPE) {
-    return container.documentElement;
-  } else {
-    return container.firstChild;
-  }
-}
+//   if (container.nodeType === DOC_NODE_TYPE) {
+//     return container.documentElement;
+//   } else {
+//     return container.firstChild;
+//   }
+// }
 
-function getHostRootInstanceInContainer(container) {
-  // 初始渲染是null
-  var rootEl = getReactRootElementInContainer(container);
+// function getHostRootInstanceInContainer(container) {
+//   // 初始渲染是null
+//   var rootEl = getReactRootElementInContainer(container);
 
-  var prevHostInstance =
-    rootEl && ReactDOMComponentTree.getInstanceFromNode(rootEl);
-  return prevHostInstance && !prevHostInstance._hostParent
-    ? prevHostInstance
-    : null;
-}
+//   var prevHostInstance =
+//     rootEl && ReactDOMComponentTree.getInstanceFromNode(rootEl);
+//   return prevHostInstance && !prevHostInstance._hostParent
+//     ? prevHostInstance
+//     : null;
+// }
 
-function getTopLevelWrapperInContainer(container) {
-  var root = getHostRootInstanceInContainer(container);
-  return root ? root._hostContainerInfo._topLevelWrapper : null;
-}
+// function getTopLevelWrapperInContainer(container) {
+//   var root = getHostRootInstanceInContainer(container);
+//   return root ? root._hostContainerInfo._topLevelWrapper : null;
+// }
 
 function _mountImageIntoNode(
   markup,
@@ -110,6 +110,16 @@ function batchedMountComponentIntoNode(
   //   /* useCreateElement */
   //   !shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement
   // );
+  const transaction = {
+    useCreateElement: true,
+  };
+  mountComponentIntoNode(
+    componentInstance,
+    container,
+    transaction,
+    shouldReuseMarkup,
+    context
+  );
   // transaction.perform(
   //   mountComponentIntoNode,
   //   null,
@@ -120,23 +130,15 @@ function batchedMountComponentIntoNode(
   //   context
   // );
   // ReactUpdates.ReactReconcileTransaction.release(transaction);
-  mountComponentIntoNode(
-    null,
-    componentInstance,
-    container,
-    undefined,
-    false,
-    {}
-  );
 }
 
 var topLevelRootCounter = 1;
-var TopLevelWrapper = function() {
+var TopLevelWrapper = function () {
   this.rootID = topLevelRootCounter++;
 };
 TopLevelWrapper.prototype.isReactComponent = {};
 
-TopLevelWrapper.prototype.render = function() {
+TopLevelWrapper.prototype.render = function () {
   return this.props.child;
 };
 TopLevelWrapper.isReactTopLevelWrapper = true;
@@ -155,7 +157,7 @@ function _renderNewRootComponent(
   shouldReuseMarkup,
   context
 ) {
-  var componentInstance = instantiateReactComponent(nextElement, false);
+  var componentInstance = instantiateReactComponent(nextElement);
   batchedMountComponentIntoNode(
     componentInstance,
     container,
@@ -184,6 +186,7 @@ function _renderSubtreeIntoContainer(
     false,
     {}
   )._renderedComponent.getPublicInstance();
+  console.log(component);
 }
 
 function render(nextElement, container, callback) {

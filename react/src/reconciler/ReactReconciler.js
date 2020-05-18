@@ -6,7 +6,6 @@ const ReactReconciler = {
     hostContainerInfo,
     context
   ) {
-    debugger;
     var markup = internalInstance.mountComponent(
       transaction,
       hostParent,

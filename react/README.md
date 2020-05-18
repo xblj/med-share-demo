@@ -45,6 +45,8 @@ ReactDOM.render(<div>缴费单身</div>, document.getElementById('root'));
 
 ### shared/ReactElementSymbol.js
 
+> 主要用于表示对象为一个 reactElement，如果是高版本浏览器支持 symbol 还能防止 xss 攻击
+
 ```js
 // 用于标识对象是reactElement
 const REACT_ELEMENT_TYPE = Symbol.for('react.element');
@@ -53,6 +55,8 @@ export default REACT_ELEMENT_TYPE;
 ```
 
 ### react/index.js
+
+> `react`入口文件并没有过多的逻辑，而是作为`api`的整合导出
 
 ```js
 import { createElement } from './ReactElement';
@@ -69,6 +73,8 @@ export default React;
 ```
 
 ### react/ReactElement.js
+
+> 主要用于处理`props`和`children`并创建`ReactElement`，
 
 ```js
 // 创建虚拟dom
@@ -155,6 +161,9 @@ export { render };
 ```js
 import REACT_ELEMENT_TYPE from '../shared/ReactElementSymbol';
 
+/**
+ * 将ReactElement渲染成原生dom并挂载到页面上
+ */
 export function render(element, container) {
   const dom = createDOM(element, container);
   container.appendChild(dom);
@@ -199,6 +208,8 @@ export function createChildrenDOM(childrenElement, parentNode) {
 
 ## 类组件的渲染
 
+> react 有函数组件和类组件两种，但是在 js 里，类其实也是函数的语法糖，所有无法区分到底是类还是函数，由于类组件会继承`Component`或者`PureComponent`，所以可以通过在基类的原型对象上多加一个标识`isReactComponent`来表面当前组件是类组件
+
 ### react/component.js
 
 ```js
@@ -232,6 +243,7 @@ export function createDOM(element) {
 
 export function createClassComponent(element) {
   const { type, props } = element;
+  // 类组件需要通过new 关键字进行调用
   const instance = new type(props);
   const renderElement = instance.render();
   const dom = createDOM(renderElement);
@@ -268,6 +280,7 @@ export function createDOM(element) {
 
 export function createFunctionComponent(element) {
   const { type, props } = element;
+  // 函数组件直接调用就行了
   const renderElement = type(props);
   const dom = createDOM(renderElement);
   return dom;

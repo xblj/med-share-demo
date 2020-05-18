@@ -1,7 +1,7 @@
 import DOMProperty from './DOMProperty';
 
 const DOMPropertyOperations = {
-  setAttributeForRoot: function(node) {
+  setAttributeForRoot: function (node) {
     node.setAttribute(DOMProperty.ROOT_ATTRIBUTE_NAME, '');
   },
 };

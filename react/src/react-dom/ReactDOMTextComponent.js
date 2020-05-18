@@ -22,7 +22,7 @@ export default class ReactDOMTextComponent {
       if (this._stringText) {
         DOMLazyTree.queueChild(
           lazyTree,
-          ownerDocument.createTextNode(this._stringText)
+          DOMLazyTree(ownerDocument.createTextNode(this._stringText))
         );
       }
       return lazyTree;
