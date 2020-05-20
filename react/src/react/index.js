@@ -1,11 +1,12 @@
 import { createElement } from './ReactElement';
-import Component from './component';
+import { PureComponent, Component } from './ReactBaseClasses';
 
 const React = {
   createElement,
   Component,
+  PureComponent,
 };
 
-export { createElement, Component };
+export { createElement, Component, PureComponent };
 
 export default React;

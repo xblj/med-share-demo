@@ -22,13 +22,6 @@ var SUBSEPARATOR = ':';
  */
 
 /**
- * TODO: Test that a single child and an array with one item have the same key
- * pattern.
- */
-
-var didWarnAboutMaps = false;
-
-/**
  * Generate a key string that identifies a component within a set.
  *
  * @param {*} component A component that could contain a manual key.

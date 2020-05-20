@@ -1,9 +1,9 @@
 import DOMProperty from './DOMProperty';
-import ReactDOMComponentFlags from './shared/ReactDOMComponentFlags';
+import ReactDOMComponentFlags from '../shared/ReactDOMComponentFlags';
 
-var Flags = ReactDOMComponentFlags;
+const Flags = ReactDOMComponentFlags;
 
-var internalInstanceKey =
+const internalInstanceKey =
   '__reactInternalInstance$' + Math.random().toString(36).slice(2);
 
 /**
@@ -81,6 +81,7 @@ function precacheChildNodes(inst, node) {
     var childID = getRenderedHostOrTextFromComponent(childInst)._domID;
     if (childID === 0) {
       // We're currently unmounting this child in ReactMultiChild; skip it.
+      //
       continue;
     }
     // We assume the child nodes are in the same order as the child instances.
@@ -159,6 +160,14 @@ function getNodeFromInstance(inst) {
   return inst._hostNode;
 }
 
+function uncacheNode(inst) {
+  var node = inst._hostNode;
+  if (node) {
+    delete node[internalInstanceKey];
+    inst._hostNode = null;
+  }
+}
+
 export default {
   getInstanceFromNode,
   getClosestInstanceFromNode,
@@ -167,4 +176,5 @@ export default {
   getRenderedHostOrTextFromComponent,
   precacheNode,
   getNodeFromInstance,
+  uncacheNode,
 };

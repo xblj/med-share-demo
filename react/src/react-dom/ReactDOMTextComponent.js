@@ -1,4 +1,5 @@
-import DOMLazyTree from './utils/DOMLazyTree';
+import DOMLazyTree from '../shared/DOMLazyTree';
+import ReactDOMComponentTree from './ReactDOMComponentTree';
 
 export default class ReactDOMTextComponent {
   constructor(text) {
@@ -30,5 +31,36 @@ export default class ReactDOMTextComponent {
       return this._stringText;
     }
   }
-  receiveComponent(nextText, transaction) {}
+  receiveComponent(nextText, transaction) {
+    console.log('receiveComponent: ReactDOMTextComponent');
+  }
+
+  unmountComponent() {
+    this._closingComment = null;
+    this._commentNodes = null;
+    ReactDOMComponentTree.uncacheNode(this);
+  }
+
+  getHostNode() {
+    return this._stringText;
+
+    // var hostNode = this._commentNodes;
+    // if (hostNode) {
+    //   return hostNode;
+    // }
+    // if (!this._closingComment) {
+    //   var openingComment = ReactDOMComponentTree.getNodeFromInstance(this);
+    //   var node = openingComment.nextSibling;
+    //   while (true) {
+    //     if (node.nodeType === 8 && node.nodeValue === ' /react-text ') {
+    //       this._closingComment = node;
+    //       break;
+    //     }
+    //     node = node.nextSibling;
+    //   }
+    // }
+    // hostNode = [this._hostNode, this._closingComment];
+    // this._commentNodes = hostNode;
+    // return hostNode;
+  }
 }

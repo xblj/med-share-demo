@@ -1,7 +1,7 @@
 import ReactHostComponent from './ReactHostComponent';
 import ReactCompositeComponent from './ReactCompositeComponent';
 
-// To avoid a cyclic dependency, we create the final class in this module
+// 避免循环引用
 class ReactCompositeComponentWrapper extends ReactCompositeComponent {
   _instantiateReactComponent = instantiateReactComponent;
 }
@@ -20,23 +20,26 @@ function isInternalComponentType(type) {
 }
 
 /**
- * 实例化各种组件返回
+ * 实例化各种组件并返回
  * @param {import("react").ReactNode} node
  */
 export default function instantiateReactComponent(node) {
   let instance;
+
   if (typeof node === 'string' || typeof node === 'number') {
+    // 创建文本节点，
     instance = ReactHostComponent.createInstanceForText(node);
   } else if (typeof node === 'object') {
     const element = node;
     const { type } = node;
     if (typeof type === 'string') {
+      // 原生dom
       instance = ReactHostComponent.createInternalComponent(element);
     } else if (isInternalComponentType(type)) {
-      // 函数或者类组件
+      // 一些内部组件，ReactDOMComponent,ReactDOMTextComponent，估计是
       instance = new element.type(element);
     } else {
-      // 这个地方是啥意思？
+      // 自定义组件，用户自己写的函数组件或者类组件
       instance = new ReactCompositeComponentWrapper(element);
     }
   } else {

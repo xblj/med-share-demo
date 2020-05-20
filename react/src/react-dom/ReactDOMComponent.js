@@ -1,8 +1,8 @@
 import ReactDOMComponentTree from './ReactDOMComponentTree';
-import ReactDOMComponentFlags from './shared/ReactDOMComponentFlags';
 import DOMPropertyOperations from './DOMPropertyOperations';
-import DOMLazyTree from './utils/DOMLazyTree';
 import ReactMultiChild from '../reconciler/ReactMultiChild';
+import ReactDOMComponentFlags from '../shared/ReactDOMComponentFlags';
+import DOMLazyTree from '../shared/DOMLazyTree';
 
 const CONTENT_TYPES = { string: true, number: true };
 const getNode = ReactDOMComponentTree.getNodeFromInstance;
@@ -17,7 +17,7 @@ export default class ReactDOMComponent extends ReactMultiChild {
     this._currentElement = element;
     this._tag = tag.toLowerCase();
     this._renderedChildren = null;
-    this._ostNode = null;
+    this._hostNode = null;
     this._hostParent = null;
     this._rootNodeID = 0;
     this._domID = 0;
@@ -58,6 +58,68 @@ export default class ReactDOMComponent extends ReactMultiChild {
     }
 
     return mountImage;
+  }
+
+  receiveComponent(nextElement, transaction, context) {
+    const prevElement = this._currentElement;
+    this._currentElement = nextElement;
+    this.updateComponent(transaction, prevElement, nextElement, context);
+  }
+
+  updateComponent(transaction, prevElement, nextElement, context) {
+    const lastProps = prevElement.props;
+    const nextProps = this._currentElement.props;
+    this._updateDOMProperties(lastProps, nextProps, transaction, context);
+    this._updateDOMChildren(lastProps, nextProps, transaction, context);
+  }
+
+  unmountComponent() {
+    this.unmountChildren();
+    ReactDOMComponentTree.uncacheNode(this);
+    this._rootNodeID = 0;
+    this._domID = 0;
+    this._wrapperState = null;
+  }
+
+  getHostNode() {
+    return getNode(this);
+  }
+
+  _updateDOMChildren(lastProps, nextProps, transaction, context) {
+    const lastContent = CONTENT_TYPES[typeof lastProps.children]
+      ? lastProps.children
+      : null;
+    const nextContent = CONTENT_TYPES[typeof nextProps.children]
+      ? nextProps.children
+      : null;
+    const lastHtml =
+      lastProps.dangerouslySetInnerHTML &&
+      lastProps.dangerouslySetInnerHTML.__html;
+    const nextHtml =
+      nextProps.dangerouslySetInnerHTML &&
+      nextProps.dangerouslySetInnerHTML.__html;
+
+    const lastChildren = lastContent != null ? null : lastProps.children;
+    const nextChildren = nextContent != null ? null : nextProps.children;
+
+    const lastHasContentOrHtml = lastContent != null || lastHtml != null;
+    const nextHasContentOrHtml = nextContent != null || nextHtml != null;
+    if (lastChildren != null && nextChildren == null) {
+      // 之前有现在没有了
+      this.updateChildren(null, transaction, context);
+    } else if (lastHasContentOrHtml && !nextHasContentOrHtml) {
+      this.updateTextContent('');
+    }
+
+    if (nextContent != null) {
+      if (lastContent !== nextContent) {
+        this.updateTextContent(`${nextContent}`);
+      }
+    } else if (nextHtml != null) {
+      this.updateMarkup(`${nextHtml}`);
+    } else if (nextChildren != null) {
+      this.updateChildren(nextChildren, transaction, context);
+    }
   }
 
   /**

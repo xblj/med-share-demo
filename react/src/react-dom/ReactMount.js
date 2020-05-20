@@ -3,7 +3,11 @@ import ReactDOMComponentTree from './ReactDOMComponentTree';
 import instantiateReactComponent from '../reconciler/instantiateReactComponent';
 import ReactReconciler from '../reconciler/ReactReconciler';
 import ReactDOMContainerInfo from '../react/ReactDOMContainerInfo';
-import DOMLazyTree from './utils/DOMLazyTree';
+import DOMLazyTree from '../shared/DOMLazyTree';
+import ReactUpdates from '../reconciler/ReactUpdates';
+import ReactDefaultInjection from './ReactDefaultInjection';
+
+ReactDefaultInjection.inject();
 
 // const DOC_NODE_TYPE = 9;
 var instancesByReactRootID = {};
@@ -106,30 +110,21 @@ function batchedMountComponentIntoNode(
   shouldReuseMarkup,
   context
 ) {
-  // var transaction = ReactUpdates.ReactReconcileTransaction.getPooled(
-  //   /* useCreateElement */
-  //   !shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement
-  // );
-  const transaction = {
-    useCreateElement: true,
-  };
-  mountComponentIntoNode(
+  const transaction = ReactUpdates.ReactReconcileTransaction.getPooled(
+    /* useCreateElement */
+    !shouldReuseMarkup && true
+  );
+
+  transaction.perform(
+    mountComponentIntoNode,
+    null,
     componentInstance,
     container,
     transaction,
     shouldReuseMarkup,
     context
   );
-  // transaction.perform(
-  //   mountComponentIntoNode,
-  //   null,
-  //   componentInstance,
-  //   container,
-  //   transaction,
-  //   shouldReuseMarkup,
-  //   context
-  // );
-  // ReactUpdates.ReactReconcileTransaction.release(transaction);
+  ReactUpdates.ReactReconcileTransaction.release(transaction);
 }
 
 var topLevelRootCounter = 1;
@@ -157,14 +152,19 @@ function _renderNewRootComponent(
   shouldReuseMarkup,
   context
 ) {
-  var componentInstance = instantiateReactComponent(nextElement);
-  batchedMountComponentIntoNode(
+  // 根据reactElement实例化一个组件实例
+  const componentInstance = instantiateReactComponent(nextElement);
+  // 1. 组件实例挂载到dom节点中
+  // 2. 完成回去调用ReactUpdates.flushBatchedUpdates
+  ReactUpdates.batchedUpdates(
+    batchedMountComponentIntoNode,
     componentInstance,
     container,
     shouldReuseMarkup,
     context
   );
   var wrapperID = componentInstance._instance.rootID;
+  // 在根节点的全局变量中缓存已经挂载的组件实例
   instancesByReactRootID[wrapperID] = componentInstance;
   return componentInstance;
 }
@@ -186,7 +186,6 @@ function _renderSubtreeIntoContainer(
     false,
     {}
   )._renderedComponent.getPublicInstance();
-  console.log(component);
 }
 
 function render(nextElement, container, callback) {
