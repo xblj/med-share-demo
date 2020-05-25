@@ -1,4 +1,5 @@
 import REACT_ELEMENT_TYPE from '../shared/ReactElementSymbol';
+import { addEventListener } from '../event';
 
 export function render(element, container) {
   const dom = createDOM(element, container);
@@ -7,7 +8,7 @@ export function render(element, container) {
 
 // 根据ReactElement创建原生dom
 export function createDOM(element) {
-  if (typeof element === 'string') {
+  if (typeof element === 'string' || typeof element === 'number') {
     return document.createTextNode(element);
   }
   let dom;
@@ -52,7 +53,29 @@ export function createNativeDOM(element) {
   if (props.children) {
     createChildrenDOM(props.children, dom);
   }
+  setProps(dom, props);
   return dom;
+}
+
+function setProps(dom, props) {
+  Object.keys(props).forEach((key) => {
+    if (key === 'children') return;
+    if (/^on/.test(key)) {
+      addEventListener(dom, key, props[key]);
+    } else if (key === 'style') {
+      setStyle(dom, props[key]);
+    } else if (key === 'className') {
+      dom.setAttribute('class', props[key]);
+    } else {
+      dom.setAttribute(key, props[key]);
+    }
+  });
+}
+
+function setStyle(dom, styles) {
+  Object.keys(styles).forEach((key) => {
+    dom.style[key] = styles[key];
+  });
 }
 
 export function createChildrenDOM(childrenElement, parentNode) {

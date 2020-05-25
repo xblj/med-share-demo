@@ -9,7 +9,14 @@
 
 <body>
 
+  <div onclick="handleClick()">点我啊</div>
   <script>
+    function handleClick() {
+      alert(1)
+    }
+  </script>
+
+  <!-- <script>
     var lastTime = performance.now();
     var frame = 0;
     var lastFameTime = performance.now();
@@ -32,8 +39,8 @@
       requestAnimationFrame(loop)
     }
     loop();
-  </script>
-  <script>
+  </script> -->
+  <!-- <script>
     setTimeout(function longTask() {
       const long = Math.random() > 0.5;
       console.log(long);
@@ -46,7 +53,7 @@
       }
       setTimeout(longTask, 1000);
     }, 1000);
-  </script>
+  </script> -->
 </body>
 
 </html>
