@@ -1,38 +1,47 @@
-function getInstance(...args) {
+const POOL_SIZE = 10;
+/**
+ * 从对象池中获取一个对象，如果没有话就新创建一个
+ * @param  {...any} args
+ */
+function defaultPooler(...args) {
   const Klass = this;
   if (Klass.instancePool.length) {
+    // 如果对象池中有可用对象则直接返回
     const instance = Klass.instancePool.pop();
-    // Klass.apply(instance, args);
     instance.construct(...args);
     return instance;
   } else {
+    // 没有可用对象，初始化一个
     return new Klass(...args);
   }
 }
+
 function standardReleaser(instance) {
   const Klass = this;
+  // 类定义的时候必须实现该方法，用于清了当前对象的属性
   instance.destructor();
   if (Klass.instancePool.length < Klass.poolSize) {
     Klass.instancePool.push(instance);
   }
 }
 
-const DEFAULT_POOLER = getInstance;
-const DEFAULT_POOL_SIZE = 10;
-
-function addPoolingTo(CopyConstructor, pooler) {
+/**
+ *
+ * @param {function} CopyConstructor 类构造函数
+ */
+function addPoolingTo(CopyConstructor) {
   const NewKlass = CopyConstructor;
+  // 对象池
   NewKlass.instancePool = [];
-  NewKlass.getPooled = pooler || DEFAULT_POOLER;
+  // 从对象池中获取一个对象
+  NewKlass.getPooled = defaultPooler;
   if (!NewKlass.poolSize) {
-    NewKlass.poolSize = DEFAULT_POOL_SIZE;
+    // 设置对象池大小为10个
+    NewKlass.poolSize = POOL_SIZE;
   }
-
+  // 释放对象
   NewKlass.release = standardReleaser;
   return NewKlass;
 }
-const PooledClass = {
-  addPoolingTo,
-};
 
-export default PooledClass;
+export { addPoolingTo };
